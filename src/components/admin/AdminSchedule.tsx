@@ -1,11 +1,23 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { CalendarSettings, SessionFormState, BookingRow } from "@/lib/types";
@@ -22,16 +34,20 @@ interface AdminScheduleProps {
 }
 
 export function AdminSchedule({ bookings }: AdminScheduleProps) {
-  const [calendarSettings, setCalendarSettings] = useState<CalendarSettings>(defaultCalendarSettings);
+  const [calendarSettings, setCalendarSettings] = useState<CalendarSettings>(
+    defaultCalendarSettings,
+  );
   const [isSavingCalendar, setIsSavingCalendar] = useState(false);
   const [sessions, setSessions] = useState<SessionFormState[]>([]);
   const [isLoadingSessions, setIsLoadingSessions] = useState(false);
-  const [editingSession, setEditingSession] = useState<SessionFormState | null>(null);
+  const [editingSession, setEditingSession] = useState<SessionFormState | null>(
+    null,
+  );
   const [isSavingSession, setIsSavingSession] = useState(false);
 
   useEffect(() => {
-    loadCalendarSettings();
-    loadSessions();
+    void loadCalendarSettings();
+    void loadSessions();
 
     if (!supabase) return;
 
@@ -39,14 +55,9 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
       .channel("admin-sessions")
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "sessions",
-        },
+        { event: "*", schema: "public", table: "sessions" },
         () => {
           void loadSessions();
-          toast.info("Розклад оновлено");
         },
       )
       .subscribe();
@@ -82,7 +93,9 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
     try {
       const { data, error } = await supabase
         .from("sessions")
-        .select("id, date, time, type, trainer_id, duration_minutes, mode, capacity, active")
+        .select(
+          "id, date, time, type, trainer_id, duration_minutes, mode, capacity, active",
+        )
         .order("date", { ascending: true })
         .order("time", { ascending: true });
 
@@ -92,17 +105,18 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
       }
 
       setSessions(
-        data.map(row => ({
+        data.map((row) => ({
           id: String((row as { id: string | number }).id),
           date: (row as { date?: string }).date ?? "",
           time: (row as { time?: string }).time ?? "",
           type: (row as { type?: string }).type ?? "",
           trainerId: (row as { trainer_id?: string }).trainer_id ?? "",
-          durationMinutes: (row as { duration_minutes?: number }).duration_minutes ?? 60,
+          durationMinutes:
+            (row as { duration_minutes?: number }).duration_minutes ?? 60,
           mode: (row as { mode?: "group" | "personal" }).mode ?? "group",
           capacity: (row as { capacity?: number }).capacity ?? 12,
           active: (row as { active?: boolean }).active ?? true,
-        }))
+        })),
       );
     } catch (error) {
       console.error("Failed to load sessions", error);
@@ -117,7 +131,9 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
 
     try {
       if (!supabase) {
-        toast.success("Налаштування календаря оновлено (локально для цієї сесії)");
+        toast.success(
+          "Налаштування календаря оновлено (локально для цієї сесії)",
+        );
         return;
       }
 
@@ -157,7 +173,10 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
       };
 
       if (editingSession.id) {
-        const { error } = await supabase.from("sessions").update(payload).eq("id", editingSession.id);
+        const { error } = await supabase
+          .from("sessions")
+          .update(payload)
+          .eq("id", editingSession.id);
         if (error) {
           throw error;
         }
@@ -197,12 +216,20 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
     }
   };
 
-  const handleToggleSessionActive = async (session: SessionFormState, active: boolean) => {
-    setSessions(prev => prev.map(s => (s.id === session.id ? { ...s, active } : s)));
+  const handleToggleSessionActive = async (
+    session: SessionFormState,
+    active: boolean,
+  ) => {
+    setSessions((prev) =>
+      prev.map((s) => (s.id === session.id ? { ...s, active } : s)),
+    );
 
     if (!supabase || !session.id) return;
 
-    const { error } = await supabase.from("sessions").update({ active }).eq("id", session.id);
+    const { error } = await supabase
+      .from("sessions")
+      .update({ active })
+      .eq("id", session.id);
 
     if (error) {
       toast.error("Не вдалося змінити статус заняття.");
@@ -212,12 +239,15 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
     }
   };
 
-  const bookingsBySessionId = bookings.reduce<Record<string, number>>((acc, booking) => {
-    const sessionId = (booking as { session_id?: string | null }).session_id;
-    if (!sessionId) return acc;
-    acc[sessionId] = (acc[sessionId] ?? 0) + 1;
-    return acc;
-  }, {});
+  const bookingsBySessionId = bookings.reduce<Record<string, number>>(
+    (acc, booking) => {
+      const sessionId = (booking as { session_id?: string | null }).session_id;
+      if (!sessionId) return acc;
+      acc[sessionId] = (acc[sessionId] ?? 0) + 1;
+      return acc;
+    },
+    {},
+  );
 
   return (
     <div className="space-y-6">
@@ -236,8 +266,8 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                 type="number"
                 min={0}
                 value={calendarSettings.minDaysAhead}
-                onChange={e =>
-                  setCalendarSettings(prev => ({
+                onChange={(e) =>
+                  setCalendarSettings((prev) => ({
                     ...prev,
                     minDaysAhead: Math.max(0, Number(e.target.value) || 0),
                   }))
@@ -250,9 +280,9 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                 type="number"
                 min={0}
                 value={calendarSettings.maxDaysAhead}
-                onChange={e => {
+                onChange={(e) => {
                   const value = Math.max(0, Number(e.target.value) || 0);
-                  setCalendarSettings(prev => ({
+                  setCalendarSettings((prev) => ({
                     ...prev,
                     maxDaysAhead: value,
                   }));
@@ -300,13 +330,19 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
             </Button>
           </div>
           {isLoadingSessions ? (
-            <p className="text-sm text-muted-foreground">Завантаження занять...</p>
+            <p className="text-sm text-muted-foreground">
+              Завантаження занять...
+            </p>
           ) : sessions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Поки що немає запланованих занять.</p>
+            <p className="text-sm text-muted-foreground">
+              Поки що немає запланованих занять.
+            </p>
           ) : (
             <div className="space-y-2 max-h-[320px] overflow-y-auto pr-2">
-              {sessions.map(session => {
-                const trainer = trainers.find(t => t.id === session.trainerId);
+              {sessions.map((session) => {
+                const trainer = trainers.find(
+                  (t) => t.id === session.trainerId,
+                );
                 const booked = bookingsBySessionId[session.id ?? ""] ?? 0;
                 return (
                   <div
@@ -318,7 +354,8 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                         {session.date} • {session.time}
                       </span>
                       <span className="text-xs text-muted-foreground uppercase tracking-widest">
-                        {session.type} • {trainer?.name ?? "Тренер"} • {session.durationMinutes} хв •{" "}
+                        {session.type} • {trainer?.name ?? "Тренер"} •{" "}
+                        {session.durationMinutes} хв •{" "}
                         {session.mode === "group" ? "Група" : "Персональне"}
                       </span>
                       <span className="text-xs text-muted-foreground">
@@ -329,7 +366,9 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                     <div className="flex items-center gap-2">
                       <Switch
                         checked={session.active}
-                        onCheckedChange={value => void handleToggleSessionActive(session, value)}
+                        onCheckedChange={(value) =>
+                          void handleToggleSessionActive(session, value)
+                        }
                       />
                       <Button
                         variant="outline"
@@ -354,47 +393,72 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
         </CardContent>
       </Card>
 
-      <Dialog open={!!editingSession} onOpenChange={open => !open && setEditingSession(null)}>
+      <Dialog
+        open={!!editingSession}
+        onOpenChange={(open) => !open && setEditingSession(null)}
+      >
         <DialogContent className="max-w-md">
           {editingSession && (
             <>
               <DialogHeader>
-                <DialogTitle>{editingSession.id ? "Редагування заняття" : "Нове заняття"}</DialogTitle>
+                <DialogTitle>
+                  {editingSession.id ? "Редагування заняття" : "Нове заняття"}
+                </DialogTitle>
                 <DialogDescription>
-                  Заповніть форму нижче, щоб {editingSession.id ? "оновити" : "створити"} заняття в календарі.
+                  Заповніть форму нижче, щоб{" "}
+                  {editingSession.id ? "оновити" : "створити"} заняття в
+                  календарі.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs uppercase font-semibold text-muted-foreground">Дата</label>
+                    <label className="text-xs uppercase font-semibold text-muted-foreground">
+                      Дата
+                    </label>
                     <Input
                       type="date"
                       value={editingSession.date}
-                      onChange={e => setEditingSession({ ...editingSession, date: e.target.value })}
+                      onChange={(e) =>
+                        setEditingSession({
+                          ...editingSession,
+                          date: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs uppercase font-semibold text-muted-foreground">Час</label>
+                    <label className="text-xs uppercase font-semibold text-muted-foreground">
+                      Час
+                    </label>
                     <Input
                       type="time"
                       value={editingSession.time}
-                      onChange={e => setEditingSession({ ...editingSession, time: e.target.value })}
+                      onChange={(e) =>
+                        setEditingSession({
+                          ...editingSession,
+                          time: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs uppercase font-semibold text-muted-foreground">Напрямок</label>
+                  <label className="text-xs uppercase font-semibold text-muted-foreground">
+                    Напрямок
+                  </label>
                   <Select
                     value={editingSession.type}
-                    onValueChange={val => setEditingSession({ ...editingSession, type: val })}
+                    onValueChange={(val) =>
+                      setEditingSession({ ...editingSession, type: val })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {trainingTypes.map(t => (
+                      {trainingTypes.map((t) => (
                         <SelectItem key={t.value} value={t.value}>
                           {t.label}
                         </SelectItem>
@@ -404,16 +468,20 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs uppercase font-semibold text-muted-foreground">Тренер</label>
+                  <label className="text-xs uppercase font-semibold text-muted-foreground">
+                    Тренер
+                  </label>
                   <Select
                     value={editingSession.trainerId}
-                    onValueChange={val => setEditingSession({ ...editingSession, trainerId: val })}
+                    onValueChange={(val) =>
+                      setEditingSession({ ...editingSession, trainerId: val })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {trainers.map(t => (
+                      {trainers.map((t) => (
                         <SelectItem key={t.id} value={t.id}>
                           {t.name}
                         </SelectItem>
@@ -424,11 +492,13 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs uppercase font-semibold text-muted-foreground">Тривалість (хв)</label>
+                    <label className="text-xs uppercase font-semibold text-muted-foreground">
+                      Тривалість (хв)
+                    </label>
                     <Input
                       type="number"
                       value={editingSession.durationMinutes}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEditingSession({
                           ...editingSession,
                           durationMinutes: Number(e.target.value) || 60,
@@ -437,30 +507,40 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs uppercase font-semibold text-muted-foreground">Кількість місць</label>
+                    <label className="text-xs uppercase font-semibold text-muted-foreground">
+                      Кількість місць
+                    </label>
                     <Input
                       type="number"
                       value={editingSession.capacity}
-                      onChange={e =>
-                        setEditingSession({ ...editingSession, capacity: Number(e.target.value) || 12 })
+                      onChange={(e) =>
+                        setEditingSession({
+                          ...editingSession,
+                          capacity: Number(e.target.value) || 12,
+                        })
                       }
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs uppercase font-semibold text-muted-foreground">Формат</label>
+                  <label className="text-xs uppercase font-semibold text-muted-foreground">
+                    Формат
+                  </label>
                   <Select
                     value={editingSession.mode}
-                    onValueChange={val =>
-                      setEditingSession({ ...editingSession, mode: val as "group" | "personal" })
+                    onValueChange={(val) =>
+                      setEditingSession({
+                        ...editingSession,
+                        mode: val as "group" | "personal",
+                      })
                     }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {sessionModes.map(m => (
+                      {sessionModes.map((m) => (
                         <SelectItem key={m.value} value={m.value}>
                           {m.label}
                         </SelectItem>
@@ -472,7 +552,9 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                 <div className="flex items-center gap-2 pt-2">
                   <Switch
                     checked={editingSession.active}
-                    onCheckedChange={checked => setEditingSession({ ...editingSession, active: checked })}
+                    onCheckedChange={(checked) =>
+                      setEditingSession({ ...editingSession, active: checked })
+                    }
                   />
                   <span className="text-sm">Активне заняття</span>
                 </div>
@@ -481,8 +563,13 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                 <Button variant="ghost" onClick={() => setEditingSession(null)}>
                   Скасувати
                 </Button>
-                <Button onClick={() => void handleSaveSession()} disabled={isSavingSession}>
-                  {isSavingSession && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                <Button
+                  onClick={() => void handleSaveSession()}
+                  disabled={isSavingSession}
+                >
+                  {isSavingSession && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   Зберегти
                 </Button>
               </DialogFooter>

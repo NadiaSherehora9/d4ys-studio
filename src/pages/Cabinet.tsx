@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn, parseBookingNotes } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
-import { BookingRow, BookingStatus } from "@/lib/types";
+import { BookingRow } from "@/lib/types";
 import { bookingStatusLabels, bookingStatusColors } from "@/lib/constants";
 import { useAuth } from "@/context/AuthContext";
 import { 
@@ -23,13 +23,12 @@ import {
   RefreshCw,
   Mail,
   Shield,
-  CreditCard,
   Clock
 } from "lucide-react";
 import { toast } from "sonner";
 
 const Cabinet = () => {
-  const { user, profile, signIn, signUp, signOut, isLoading: authLoading } = useAuth();
+  const { user, profile, signIn, signUp, signOut, resetPassword, updatePassword, isLoading: authLoading } = useAuth();
   
   // Auth Form State
   const [userEmail, setUserEmail] = useState("");
@@ -40,6 +39,8 @@ const Cabinet = () => {
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [showRegistrationSuccess, setShowRegistrationSuccess] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showUpdatePassword, setShowUpdatePassword] = useState(false);
 
   // App State
   const [bookings, setBookings] = useState<BookingRow[]>([]);
@@ -50,6 +51,16 @@ const Cabinet = () => {
   const [profilePhone, setProfilePhone] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+
+  // Check for recovery URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("type") === "recovery") {
+      setShowUpdatePassword(true);
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   // Load bookings when user is available
   useEffect(() => {
@@ -167,6 +178,48 @@ const Cabinet = () => {
       }
     } finally {
       setIsSubmittingAuth(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userEmail) {
+      toast.error("Введіть email");
+      return;
+    }
+    
+    setIsSubmittingAuth(true);
+    const { error } = await resetPassword(userEmail);
+    setIsSubmittingAuth(false);
+
+    if (error) {
+      console.error(error);
+      toast.error("Помилка при відправці запиту");
+    } else {
+      toast.success("Інструкції відправлено на email");
+      setShowForgotPassword(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (userPassword !== confirmPassword) {
+      toast.error("Паролі не співпадають");
+      return;
+    }
+    
+    setIsSubmittingAuth(true);
+    const { error } = await updatePassword(userPassword);
+    setIsSubmittingAuth(false);
+
+    if (error) {
+      console.error(error);
+      toast.error("Не вдалося оновити пароль");
+    } else {
+      toast.success("Пароль успішно оновлено");
+      setShowUpdatePassword(false);
+      setUserPassword("");
+      setConfirmPassword("");
     }
   };
 
@@ -382,7 +435,18 @@ const Cabinet = () => {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Пароль</label>
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Пароль</label>
+                                {authMode === "signin" && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowForgotPassword(true)}
+                                        className="text-xs text-primary hover:text-primary/80 transition-colors"
+                                    >
+                                        Забули пароль?
+                                    </button>
+                                )}
+                            </div>
                             <Input
                                 type="password"
                                 placeholder="••••••••"
@@ -687,6 +751,79 @@ const Cabinet = () => {
                     {isSavingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : "Зберегти"}
                 </Button>
             </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Forgot Password Dialog */}
+      <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Відновлення паролю</DialogTitle>
+            <DialogDescription>
+              Введіть ваш email, і ми надішлемо інструкції для скидання паролю.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleResetPassword} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email</label>
+              <Input
+                type="email"
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
+                placeholder="example@mail.com"
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="ghost" onClick={() => setShowForgotPassword(false)}>
+                Скасувати
+              </Button>
+              <Button type="submit" disabled={isSubmittingAuth}>
+                {isSubmittingAuth ? <Loader2 className="w-4 h-4 animate-spin" /> : "Надіслати"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Update Password Dialog */}
+      <Dialog open={showUpdatePassword} onOpenChange={setShowUpdatePassword}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Встановлення нового паролю</DialogTitle>
+            <DialogDescription>
+              Придумайте новий надійний пароль для вашого акаунту.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdatePassword} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Новий пароль</label>
+              <Input
+                type="password"
+                value={userPassword}
+                onChange={(e) => setUserPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength={6}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Підтвердження паролю</label>
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength={6}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="submit" disabled={isSubmittingAuth} className="w-full">
+                {isSubmittingAuth ? <Loader2 className="w-4 h-4 animate-spin" /> : "Змінити пароль"}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

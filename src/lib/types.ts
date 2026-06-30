@@ -1,5 +1,4 @@
-
-export type TrainingType = "HIP-HOP" | "K-POP" | "HEELS" | "CHOREOGRAPHY";
+export type TrainingType = "CHOREO" | "JAZZ-FUNK";
 
 export type SessionMode = "group" | "personal";
 

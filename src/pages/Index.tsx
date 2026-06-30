@@ -11,16 +11,15 @@ import { PricingSection } from "@/components/sections/PricingSection";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { FooterSection } from "@/components/sections/FooterSection";
+import { SEO } from "@/components/SEO";
 
 const navItems = [
-  { name: "Home", link: "#home" },
-  { name: "Gallery", link: "#gallery" },
-  { name: "Directions", link: "#directions" },
-  { name: "Team", link: "#team" },
-  { name: "Schedule", link: "#schedule" },
-  { name: "Pricing", link: "#pricing" },
-  { name: "FAQ", link: "#faq" },
-  { name: "Contact", link: "#contact" },
+  { name: "Головна", link: "#home" },
+  { name: "Напрямки", link: "#directions" },
+  { name: "Команда", link: "#team" },
+  { name: "Розклад", link: "#schedule" },
+  { name: "Ціни", link: "#pricing" },
+  { name: "Контакти", link: "#contact" },
 ];
 
 const Index = () => {
@@ -28,6 +27,7 @@ const Index = () => {
 
   return (
     <>
+      <SEO />
       {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
       
       {!isLoading && (
@@ -38,7 +38,7 @@ const Index = () => {
 
             {/* Sections */}
             <HeroSection />
-            <GallerySection />
+            {/* <GallerySection /> */}
             <DirectionsSection />
             <TeamSection />
             <ScheduleSection />

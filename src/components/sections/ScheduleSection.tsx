@@ -6,10 +6,17 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Calendar as CalendarIcon, Clock, ChevronRight } from "lucide-react";
 import type { TrainingType, SessionMode, Trainer } from "@/lib/types";
+import { useAuth } from "@/context/AuthContext";
 
 interface ScheduleSlot {
   type: TrainingType;
@@ -31,19 +38,19 @@ interface ClassSchedule {
 
 const trainers: Trainer[] = [
   {
-    id: "max",
-    name: "Макс",
-    styles: ["HIP-HOP"],
+    id: "anastasiia",
+    name: "Анастасія",
+    styles: ["CHOREO"],
   },
   {
-    id: "anna",
-    name: "Анна",
-    styles: ["HEELS", "CHOREOGRAPHY"],
+    id: "nadiia",
+    name: "Надія",
+    styles: ["CHOREO"],
   },
   {
-    id: "yulia",
-    name: "Юля",
-    styles: ["K-POP"],
+    id: "veronika",
+    name: "Вероніка",
+    styles: ["JAZZ-FUNK"],
   },
 ];
 
@@ -52,122 +59,68 @@ const trainerMap = trainers.reduce(
     acc[trainer.id] = trainer;
     return acc;
   },
-  {} as Record<string, Trainer>
+  {} as Record<string, Trainer>,
 );
 
 const schedule: ClassSchedule[] = [
   {
-    time: "10:00",
-    saturday: {
-      type: "K-POP",
-      trainerId: "yulia",
-      durationMinutes: 60,
-      mode: "group",
-    },
-    sunday: {
-      type: "CHOREOGRAPHY",
-      trainerId: "anna",
-      durationMinutes: 60,
-      mode: "group",
-    },
-  },
-  {
-    time: "12:00",
-    saturday: {
-      type: "HEELS",
-      trainerId: "anna",
-      durationMinutes: 60,
-      mode: "group",
-    },
-    sunday: {
-      type: "HIP-HOP",
-      trainerId: "max",
-      durationMinutes: 60,
-      mode: "group",
-    },
-  },
-  {
-    time: "17:00",
+    time: "18:00",
     monday: {
-      type: "HIP-HOP",
-      trainerId: "max",
+      type: "CHOREO",
+      trainerId: "anastasiia",
       durationMinutes: 60,
       mode: "group",
     },
     wednesday: {
-      type: "HIP-HOP",
-      trainerId: "max",
+      type: "CHOREO",
+      trainerId: "nadiia",
       durationMinutes: 60,
       mode: "group",
     },
     friday: {
-      type: "HIP-HOP",
-      trainerId: "max",
-      durationMinutes: 60,
-      mode: "group",
-    },
-  },
-  {
-    time: "18:00",
-    tuesday: {
-      type: "CHOREOGRAPHY",
-      trainerId: "anna",
-      durationMinutes: 60,
-      mode: "group",
-    },
-    thursday: {
-      type: "CHOREOGRAPHY",
-      trainerId: "anna",
+      type: "CHOREO",
+      trainerId: "anastasiia",
       durationMinutes: 60,
       mode: "group",
     },
   },
   {
     time: "19:00",
-    monday: {
-      type: "K-POP",
-      trainerId: "yulia",
-      durationMinutes: 60,
-      mode: "group",
-    },
-    wednesday: {
-      type: "K-POP",
-      trainerId: "yulia",
-      durationMinutes: 60,
-      mode: "group",
-    },
-    friday: {
-      type: "K-POP",
-      trainerId: "yulia",
-      durationMinutes: 60,
-      mode: "group",
-    },
-  },
-  {
-    time: "20:00",
     tuesday: {
-      type: "HEELS",
-      trainerId: "anna",
+      type: "JAZZ-FUNK",
+      trainerId: "veronika",
       durationMinutes: 60,
       mode: "group",
     },
     thursday: {
-      type: "HEELS",
-      trainerId: "anna",
+      type: "JAZZ-FUNK",
+      trainerId: "veronika",
+      durationMinutes: 60,
+      mode: "group",
+    },
+    saturday: {
+      type: "JAZZ-FUNK",
+      trainerId: "veronika",
       durationMinutes: 60,
       mode: "group",
     },
   },
 ];
 
-const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
+const days = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
 const dayLabels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const classColors: Record<TrainingType, string> = {
-  "HIP-HOP": "bg-primary/20 border-primary text-primary",
-  "K-POP": "bg-accent/20 border-accent text-accent",
-  "HEELS": "bg-secondary border-foreground/30 text-foreground",
-  "CHOREOGRAPHY": "bg-muted border-muted-foreground/30 text-muted-foreground",
+  CHOREO: "bg-primary/20 border-primary text-primary",
+  "JAZZ-FUNK": "bg-pink-500/20 border-pink-500 text-pink-400",
 };
 
 interface CalendarClass {
@@ -209,9 +162,12 @@ interface CalendarLimits {
 }
 
 export const ScheduleSection = () => {
+  const { user, profile } = useAuth();
   const [view, setView] = useState<"weekly" | "calendar">("weekly");
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [selectedClass, setSelectedClass] = useState<SelectedClass | null>(null);
+  const [selectedClass, setSelectedClass] = useState<SelectedClass | null>(
+    null,
+  );
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [bookingName, setBookingName] = useState("");
   const [bookingPhone, setBookingPhone] = useState("");
@@ -219,39 +175,46 @@ export const ScheduleSection = () => {
   const [bookingNotes, setBookingNotes] = useState("");
   const [bookingMode, setBookingMode] = useState<SessionMode>("group");
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
-  const [calendarLimits, setCalendarLimits] = useState<CalendarLimits | null>(null);
+  const [calendarLimits, setCalendarLimits] = useState<CalendarLimits | null>(
+    null,
+  );
   const [sessions, setSessions] = useState<CalendarSession[]>([]);
 
+  // Pre-fill user data when booking dialog opens
   useEffect(() => {
-    const loadCalendarLimits = async () => {
-      if (!supabase) {
-        setCalendarLimits({ minDaysAhead: 0, maxDaysAhead: 30 });
-        return;
-      }
+    if (isBookingOpen && user) {
+      if (profile?.name) setBookingName(profile.name);
+      if (profile?.phone) setBookingPhone(profile.phone);
+      if (user.email) setBookingEmail(user.email);
+    }
+  }, [isBookingOpen, user, profile]);
 
-      const { data, error } = await supabase
-        .from("calendar_settings")
-        .select("min_days_ahead, max_days_ahead")
-        .limit(1)
-        .maybeSingle();
+  const loadCalendarLimits = async () => {
+    if (!supabase) {
+      setCalendarLimits({ minDaysAhead: 0, maxDaysAhead: 30 });
+      return;
+    }
 
-      if (error || !data) {
-        setCalendarLimits({ minDaysAhead: 0, maxDaysAhead: 30 });
-        return;
-      }
+    const { data, error } = await supabase
+      .from("calendar_settings")
+      .select("min_days_ahead, max_days_ahead")
+      .limit(1)
+      .maybeSingle();
 
-      const min = Number.isFinite(data.min_days_ahead) ? data.min_days_ahead : 0;
-      const max = Number.isFinite(data.max_days_ahead) ? data.max_days_ahead : 30;
+    if (error || !data) {
+      setCalendarLimits({ minDaysAhead: 0, maxDaysAhead: 30 });
+      return;
+    }
 
-      const safeMin = Math.max(0, min);
-      const safeMax = Math.max(safeMin, max);
+    const min = Number.isFinite(data.min_days_ahead) ? data.min_days_ahead : 0;
+    const max = Number.isFinite(data.max_days_ahead) ? data.max_days_ahead : 30;
+    const safeMin = Math.max(0, min);
+    const safeMax = Math.max(safeMin, max);
 
-      setCalendarLimits({
-        minDaysAhead: safeMin,
-        maxDaysAhead: safeMax,
-      });
-    };
+    setCalendarLimits({ minDaysAhead: safeMin, maxDaysAhead: safeMax });
+  };
 
+  useEffect(() => {
     void loadCalendarLimits();
   }, []);
 
@@ -260,11 +223,16 @@ export const ScheduleSection = () => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().slice(0, 10);
+    const ty = today.getFullYear();
+    const tm = String(today.getMonth() + 1).padStart(2, "0");
+    const td = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${ty}-${tm}-${td}`;
 
     const { data, error } = await supabase
       .from("sessions")
-      .select("id, date, time, type, trainer_id, duration_minutes, mode, active")
+      .select(
+        "id, date, time, type, trainer_id, duration_minutes, mode, active",
+      )
       .gte("date", todayStr)
       .order("date", { ascending: true })
       .order("time", { ascending: true });
@@ -274,16 +242,18 @@ export const ScheduleSection = () => {
     }
 
     setSessions(
-      data.map(row => ({
+      data.map((row) => ({
         id: row.id as string,
         date: row.date as string,
-        time: row.time as string,
+        // нормалізуємо час: "18:00:00" → "18:00"
+        time: ((row.time as string) ?? "").slice(0, 5),
         type: row.type as TrainingType,
         trainerId: (row as { trainer_id?: string }).trainer_id ?? "",
-        durationMinutes: (row as { duration_minutes?: number }).duration_minutes ?? 60,
+        durationMinutes:
+          (row as { duration_minutes?: number }).duration_minutes ?? 60,
         mode: (row as { mode?: SessionMode }).mode ?? "group",
         active: (row as { active?: boolean }).active ?? true,
-      }))
+      })),
     );
   };
 
@@ -292,38 +262,52 @@ export const ScheduleSection = () => {
   }, []);
 
   useEffect(() => {
-    if (!supabase) {
-      return;
-    }
+    if (!supabase) return;
 
-    const channel = supabase
+    const sessionsChannel = supabase
       .channel("schedule-sessions")
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "sessions",
-        },
+        { event: "*", schema: "public", table: "sessions" },
         () => {
           void loadSessions();
         },
       )
       .subscribe();
 
+    const calendarChannel = supabase
+      .channel("schedule-calendar-settings")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "calendar_settings" },
+        () => {
+          void loadCalendarLimits();
+        },
+      )
+      .subscribe();
+
     return () => {
-      void supabase.removeChannel(channel);
+      void supabase.removeChannel(sessionsChannel);
+      void supabase.removeChannel(calendarChannel);
     };
   }, []);
 
-  const getClassesForDate = (selectedDate: Date | undefined): CalendarClass[] => {
+  const getClassesForDate = (
+    selectedDate: Date | undefined,
+  ): CalendarClass[] => {
     if (!selectedDate) return [];
 
-    const dateStr = selectedDate.toISOString().slice(0, 10);
-    const sessionsForDay = sessions.filter(session => session.active && session.date === dateStr);
+    // toISOString() дає UTC дату, яка може зсуватись на день у київському часовому поясі
+    const y = selectedDate.getFullYear();
+    const m = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const d = String(selectedDate.getDate()).padStart(2, "0");
+    const dateStr = `${y}-${m}-${d}`;
+    const sessionsForDay = sessions.filter(
+      (session) => session.active && session.date === dateStr,
+    );
 
     if (sessionsForDay.length > 0) {
-      return sessionsForDay.map(session => {
+      return sessionsForDay.map((session) => {
         const trainer = trainerMap[session.trainerId];
 
         return {
@@ -334,7 +318,9 @@ export const ScheduleSection = () => {
           trainerName: trainer?.name ?? "Тренер",
           durationMinutes: session.durationMinutes,
           mode: session.mode,
-          color: classColors[session.type],
+          color:
+            classColors[session.type] ??
+            "bg-primary/20 border-primary text-primary",
         };
       });
     }
@@ -344,8 +330,10 @@ export const ScheduleSection = () => {
 
     const classesForDay: CalendarClass[] = [];
 
-    schedule.forEach(row => {
-      const slot = row[dayName as keyof ClassSchedule] as ScheduleSlot | undefined;
+    schedule.forEach((row) => {
+      const slot = row[dayName as keyof ClassSchedule] as
+        | ScheduleSlot
+        | undefined;
       if (!slot) return;
       const trainer = trainerMap[slot.trainerId];
 
@@ -357,7 +345,8 @@ export const ScheduleSection = () => {
         trainerName: trainer?.name ?? "Тренер",
         durationMinutes: slot.durationMinutes,
         mode: slot.mode,
-        color: classColors[slot.type],
+        color:
+          classColors[slot.type] ?? "bg-primary/20 border-primary text-primary",
       });
     });
 
@@ -376,9 +365,20 @@ export const ScheduleSection = () => {
   fromDate.setHours(0, 0, 0, 0);
   fromDate.setDate(fromDate.getDate() + safeMin);
 
-  const toDate = new Date(today);
-  toDate.setHours(0, 0, 0, 0);
-  toDate.setDate(toDate.getDate() + safeMax);
+  // toDate — максимум з: налаштувань календаря АБО дата найдальшої активної сесії в БД
+  const lastSessionDate = sessions
+    .filter((s) => s.active && s.date)
+    .map((s) => new Date(s.date))
+    .sort((a, b) => b.getTime() - a.getTime())[0];
+
+  const toDateFromSettings = new Date(today);
+  toDateFromSettings.setHours(0, 0, 0, 0);
+  toDateFromSettings.setDate(toDateFromSettings.getDate() + safeMax);
+
+  const toDate =
+    lastSessionDate && lastSessionDate > toDateFromSettings
+      ? lastSessionDate
+      : toDateFromSettings;
 
   const openBookingDialog = (
     session: {
@@ -390,7 +390,7 @@ export const ScheduleSection = () => {
       mode: SessionMode;
     },
     label: string,
-    source: "weekly" | "calendar"
+    source: "weekly" | "calendar",
   ) => {
     setSelectedClass({
       source,
@@ -406,7 +406,10 @@ export const ScheduleSection = () => {
     setIsBookingOpen(true);
   };
 
-  const openBookingFromCalendar = (cls: CalendarClass, selectedDate: Date | undefined) => {
+  const openBookingFromCalendar = (
+    cls: CalendarClass,
+    selectedDate: Date | undefined,
+  ) => {
     if (!selectedDate) return;
     const label = selectedDate.toLocaleDateString("uk-UA", {
       weekday: "long",
@@ -424,11 +427,15 @@ export const ScheduleSection = () => {
         mode: cls.mode,
       },
       label,
-      "calendar"
+      "calendar",
     );
   };
 
-  const openBookingFromWeekly = (day: (typeof days)[number], rowTime: string, slot: ScheduleSlot) => {
+  const openBookingFromWeekly = (
+    day: (typeof days)[number],
+    rowTime: string,
+    slot: ScheduleSlot,
+  ) => {
     const labelMap: Record<(typeof days)[number], string> = {
       monday: "Понеділок",
       tuesday: "Вівторок",
@@ -450,7 +457,7 @@ export const ScheduleSection = () => {
         mode: slot.mode,
       },
       `${labelMap[day]} • щотижня`,
-      "weekly"
+      "weekly",
     );
   };
 
@@ -464,18 +471,24 @@ export const ScheduleSection = () => {
       return;
     }
 
+    const phoneDigits = bookingPhone.replace(/\D/g, "");
+    if (phoneDigits.length < 10) {
+      toast.error("Будь ласка, введіть коректний номер телефону");
+      return;
+    }
+
     setIsSubmittingBooking(true);
 
     try {
       if (!supabase) {
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        await new Promise((resolve) => setTimeout(resolve, 1200));
         toast.success(
           bookingMode === "group"
             ? "Ви успішно записалися на групове заняття"
             : "Запит на персональне заняття відправлено",
           {
             description: `${selectedClass.type} • ${selectedClass.trainerName} • ${selectedClass.time}`,
-          }
+          },
         );
         setIsBookingOpen(false);
         setSelectedClass(null);
@@ -521,7 +534,7 @@ export const ScheduleSection = () => {
           : "Запит на персональне заняття відправлено",
         {
           description: `${selectedClass.type} • ${selectedClass.trainerName} • ${selectedClass.time}`,
-        }
+        },
       );
       setIsBookingOpen(false);
       setSelectedClass(null);
@@ -538,14 +551,17 @@ export const ScheduleSection = () => {
   };
 
   return (
-    <section id="schedule" className="relative py-24 md:py-32 overflow-hidden bg-background/50">
+    <section
+      id="schedule"
+      className="relative py-24 md:py-32 overflow-hidden bg-background/50"
+    >
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           className="absolute top-1/4 -left-20 w-40 h-40 rounded-full bg-primary/5 blur-3xl opacity-50"
           animate={{
             scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3]
+            opacity: [0.3, 0.5, 0.3],
           }}
           transition={{ duration: 8, repeat: Infinity }}
         />
@@ -553,7 +569,7 @@ export const ScheduleSection = () => {
           className="absolute bottom-1/4 -right-20 w-60 h-60 rounded-full bg-primary/5 blur-3xl opacity-50"
           animate={{
             scale: [1.2, 1, 1.2],
-            opacity: [0.5, 0.3, 0.5]
+            opacity: [0.5, 0.3, 0.5],
           }}
           transition={{ duration: 8, repeat: Infinity }}
         />
@@ -578,7 +594,10 @@ export const ScheduleSection = () => {
             Плануй свій тиждень
           </motion.span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight uppercase text-foreground mb-8">
-            Розклад <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/50">занять</span>
+            Розклад{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/50">
+              занять
+            </span>
           </h2>
 
           {/* View Toggle */}
@@ -590,7 +609,7 @@ export const ScheduleSection = () => {
                   "px-6 py-2.5 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300",
                   view === "weekly"
                     ? "bg-primary text-primary-foreground shadow-lg"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5",
                 )}
               >
                 Weekly View
@@ -601,7 +620,7 @@ export const ScheduleSection = () => {
                   "px-6 py-2.5 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2",
                   view === "calendar"
                     ? "bg-primary text-primary-foreground shadow-lg"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5",
                 )}
               >
                 <CalendarIcon className="w-4 h-4" />
@@ -625,7 +644,9 @@ export const ScheduleSection = () => {
                 {/* Header Row */}
                 <div className="grid grid-cols-8 gap-3 mb-6">
                   <div className="p-4 text-center">
-                    <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Time</span>
+                    <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                      Time
+                    </span>
                   </div>
                   {dayLabels.map((day, index) => (
                     <motion.div
@@ -635,7 +656,9 @@ export const ScheduleSection = () => {
                       transition={{ delay: 0.1 * index }}
                       className="p-4 text-center rounded-2xl bg-secondary/30 border border-white/5"
                     >
-                      <span className="text-sm font-bold uppercase tracking-wider text-foreground">{day}</span>
+                      <span className="text-sm font-bold uppercase tracking-wider text-foreground">
+                        {day}
+                      </span>
                     </motion.div>
                   ))}
                 </div>
@@ -653,24 +676,33 @@ export const ScheduleSection = () => {
                     >
                       {/* Time Column */}
                       <div className="p-4 flex items-center justify-center rounded-2xl bg-secondary/20 border border-white/5">
-                        <span className="text-lg font-black text-foreground/80">{row.time}</span>
+                        <span className="text-lg font-black text-foreground/80">
+                          {row.time}
+                        </span>
                       </div>
 
                       {/* Day Columns */}
-                      {days.map(day => {
+                      {days.map((day) => {
                         const slot = row[day];
-                        const trainer = slot ? trainerMap[slot.trainerId] : null;
+                        const trainer = slot
+                          ? trainerMap[slot.trainerId]
+                          : null;
                         const colorClass = slot ? classColors[slot.type] : "";
                         return (
                           <button
                             type="button"
                             key={`${row.time}-${day}`}
-                            onClick={slot ? () => openBookingFromWeekly(day, row.time, slot) : undefined}
+                            onClick={
+                              slot
+                                ? () =>
+                                    openBookingFromWeekly(day, row.time, slot)
+                                : undefined
+                            }
                             className={cn(
                               "relative p-3 rounded-2xl border transition-all duration-300 flex items-center justify-center min-h-[80px] group",
                               slot
                                 ? `${colorClass} hover:scale-[1.02] hover:shadow-lg cursor-pointer`
-                                : "bg-transparent border-transparent"
+                                : "bg-transparent border-transparent",
                             )}
                           >
                             {slot ? (
@@ -715,7 +747,11 @@ export const ScheduleSection = () => {
                   onSelect={setDate}
                   fromDate={fromDate}
                   toDate={toDate}
-                  disabled={calendarLimits ? [{ before: fromDate }, { after: toDate }] : undefined}
+                  disabled={
+                    calendarLimits
+                      ? [{ before: fromDate }, { after: toDate }]
+                      : undefined
+                  }
                   className="rounded-3xl border-0 shadow-2xl bg-secondary/10 backdrop-blur-sm p-6 w-full max-w-[400px]"
                 />
               </div>
@@ -725,9 +761,19 @@ export const ScheduleSection = () => {
                 <div className="bg-secondary/10 rounded-3xl p-6 md:p-8 border border-white/5 h-full min-h-[400px]">
                   <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
                     <span className="text-primary">
-                      {date ? date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : "Select a Date"}
+                      {date
+                        ? date.toLocaleDateString("en-US", {
+                            weekday: "long",
+                            month: "long",
+                            day: "numeric",
+                          })
+                        : "Select a Date"}
                     </span>
-                    {date && <span className="text-muted-foreground text-base font-normal">Classes</span>}
+                    {date && (
+                      <span className="text-muted-foreground text-base font-normal">
+                        Classes
+                      </span>
+                    )}
                   </h3>
 
                   <div className="space-y-4">
@@ -740,16 +786,20 @@ export const ScheduleSection = () => {
                           transition={{ delay: idx * 0.1 }}
                           className={cn(
                             "group flex items-center justify-between p-4 md:p-6 rounded-2xl border transition-all duration-300 hover:shadow-md",
-                            cls.color
+                            cls.color,
                           )}
                         >
                           <div className="flex items-center gap-4 md:gap-6">
                             <div className="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-background/20 backdrop-blur-md">
                               <Clock className="w-5 h-5 mb-1 opacity-80" />
-                              <span className="text-sm font-bold">{cls.time}</span>
+                              <span className="text-sm font-bold">
+                                {cls.time}
+                              </span>
                             </div>
                             <div>
-                              <h4 className="text-xl font-black uppercase tracking-wide mb-1">{cls.type}</h4>
+                              <h4 className="text-xl font-black uppercase tracking-wide mb-1">
+                                {cls.type}
+                              </h4>
                               <p className="text-xs md:text-sm opacity-80 uppercase tracking-widest font-medium">
                                 {cls.trainerName} • {cls.durationMinutes} хв •{" "}
                                 {cls.mode === "group" ? "Група" : "Персональне"}
@@ -773,8 +823,12 @@ export const ScheduleSection = () => {
                         className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground"
                       >
                         <CalendarIcon className="w-12 h-12 mb-4 opacity-20" />
-                        <p className="text-lg font-medium">No classes scheduled for this day.</p>
-                        <p className="text-sm opacity-60">Try selecting another date or check our weekly view.</p>
+                        <p className="text-lg font-medium">
+                          No classes scheduled for this day.
+                        </p>
+                        <p className="text-sm opacity-60">
+                          Try selecting another date or check our weekly view.
+                        </p>
                       </motion.div>
                     )}
                   </div>
@@ -802,7 +856,7 @@ export const ScheduleSection = () => {
                 transition={{ delay: 0.1 * index }}
                 className={cn(
                   "flex items-center gap-3 px-4 py-2 rounded-full border bg-background/50 backdrop-blur-sm",
-                  colorClass
+                  colorClass,
                 )}
               >
                 <div
@@ -811,11 +865,13 @@ export const ScheduleSection = () => {
                     colorClass.includes("primary")
                       ? "bg-primary"
                       : colorClass.includes("accent")
-                      ? "bg-accent"
-                      : "bg-foreground/50"
+                        ? "bg-accent"
+                        : "bg-foreground/50",
                   )}
                 />
-                <span className="text-sm font-semibold uppercase tracking-wider">{name}</span>
+                <span className="text-sm font-semibold uppercase tracking-wider">
+                  {name}
+                </span>
               </motion.div>
             ))}
           </motion.div>
@@ -836,7 +892,9 @@ export const ScheduleSection = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="space-y-1">
                     <p className="text-muted-foreground">Напрямок</p>
-                    <p className="font-semibold uppercase tracking-widest">{selectedClass.type}</p>
+                    <p className="font-semibold uppercase tracking-widest">
+                      {selectedClass.type}
+                    </p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-muted-foreground">Тренер</p>
@@ -844,12 +902,16 @@ export const ScheduleSection = () => {
                   </div>
                   <div className="space-y-1">
                     <p className="text-muted-foreground">Тривалість</p>
-                    <p className="font-semibold">{selectedClass.durationMinutes} хв</p>
+                    <p className="font-semibold">
+                      {selectedClass.durationMinutes} хв
+                    </p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-muted-foreground">Формат</p>
                     <p className="font-semibold">
-                      {bookingMode === "group" ? "Групове заняття" : "Персональне"}
+                      {bookingMode === "group"
+                        ? "Групове заняття"
+                        : "Персональне"}
                     </p>
                   </div>
                 </div>
@@ -878,7 +940,7 @@ export const ScheduleSection = () => {
                     <label className="text-sm font-medium">Імʼя</label>
                     <Input
                       value={bookingName}
-                      onChange={e => setBookingName(e.target.value)}
+                      onChange={(e) => setBookingName(e.target.value)}
                       placeholder="Ваше імʼя"
                       required
                     />
@@ -887,17 +949,19 @@ export const ScheduleSection = () => {
                     <label className="text-sm font-medium">Телефон</label>
                     <Input
                       value={bookingPhone}
-                      onChange={e => setBookingPhone(e.target.value)}
+                      onChange={(e) => setBookingPhone(e.target.value)}
                       placeholder="+380..."
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Email (необовʼязково)</label>
+                    <label className="text-sm font-medium">
+                      Email (необовʼязково)
+                    </label>
                     <Input
                       type="email"
                       value={bookingEmail}
-                      onChange={e => setBookingEmail(e.target.value)}
+                      onChange={(e) => setBookingEmail(e.target.value)}
                       placeholder="you@example.com"
                     />
                   </div>
@@ -905,13 +969,15 @@ export const ScheduleSection = () => {
                     <label className="text-sm font-medium">Коментар</label>
                     <Textarea
                       value={bookingNotes}
-                      onChange={e => setBookingNotes(e.target.value)}
+                      onChange={(e) => setBookingNotes(e.target.value)}
                       placeholder="Рівень, побажання, зручний час тощо"
                       rows={3}
                     />
                   </div>
                   <Button type="submit" className="w-full">
-                    {isSubmittingBooking ? "Надсилання..." : "Підтвердити запис"}
+                    {isSubmittingBooking
+                      ? "Надсилання..."
+                      : "Підтвердити запис"}
                   </Button>
                 </form>
               </div>

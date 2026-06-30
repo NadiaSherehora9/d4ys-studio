@@ -73,7 +73,7 @@ export const FloatingNav = ({ navItems, className }: FloatingNavProps) => {
           animate={{ scale: 1 }}
           transition={{ delay: 0.1 }}
         >
-          {navItems.map((item, index) => (
+          {navItems.map((item) => (
             <a
               key={item.name}
               href={item.link}

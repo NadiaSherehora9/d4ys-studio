@@ -1,15 +1,12 @@
-
 export const trainers = [
-  { id: "max", name: "Макс" },
-  { id: "anna", name: "Анна" },
-  { id: "yulia", name: "Юля" },
+  { id: "anastasiia", name: "Анастасія" },
+  { id: "nadiia", name: "Надія" },
+  { id: "veronika", name: "Вероніка" },
 ];
 
 export const trainingTypes = [
-  { value: "HIP-HOP", label: "HIP-HOP" },
-  { value: "K-POP", label: "K-POP" },
-  { value: "HEELS", label: "HEELS" },
-  { value: "CHOREOGRAPHY", label: "CHOREOGRAPHY" },
+  { value: "CHOREO", label: "CHOREO" },
+  { value: "JAZZ-FUNK", label: "JAZZ-FUNK" },
 ];
 
 export const sessionModes = [

@@ -13,6 +13,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, data?: any) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  updatePassword: (password: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -87,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const signUp = async (email: string, password: string, data?: any) => {
     if (!supabase) return { error: "No supabase client" };
     const { error } = await supabase.auth.signUp({
@@ -107,8 +110,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    if (!supabase) return { error: "No supabase client" };
+    // URL redirection should be handled in Supabase dashboard settings, usually points to /cabinet or a specific update-password route
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/cabinet?type=recovery`,
+    });
+    return { error };
+  };
+
+  const updatePassword = async (password: string) => {
+    if (!supabase) return { error: "No supabase client" };
+    const { error } = await supabase.auth.updateUser({ password });
+    return { error };
+  };
+
   return (
-    <AuthContext.Provider value={{ session, user, profile, isAdmin, isLoading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ session, user, profile, isAdmin, isLoading, signIn, signUp, signOut, resetPassword, updatePassword }}>
       {children}
     </AuthContext.Provider>
   );

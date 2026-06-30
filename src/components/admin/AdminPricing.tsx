@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { PricingPlan } from "@/lib/types";
-import { Check, Loader2, RefreshCw } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 
 const defaultPricingPlans: PricingPlan[] = [
   {

@@ -2,7 +2,13 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { MagneticButton } from "@/components/MagneticButton";
-import { Instagram, MapPin, Clock } from "lucide-react";
+import { Instagram, MapPin, Clock, Phone } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const FooterSection = () => {
   return (
@@ -32,23 +38,49 @@ export const FooterSection = () => {
         >
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4 text-primary" />
-            <span className="text-sm uppercase tracking-widest">Ukraine</span>
+            <span className="text-sm uppercase tracking-widest">Біла Церква, ТРЦ Вега, 4 поверх</span>
           </div>
           <h2 className="heading-xl text-foreground">
             D4YS <span className="text-gradient-red">STUDIO</span>
           </h2>
         </motion.div>
 
-        {/* Schedule hint */}
+        {/* Contacts: phone + schedule */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="flex items-center justify-center gap-2 text-muted-foreground"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8"
         >
-          <Clock className="h-4 w-4" />
-          <span className="text-sm uppercase tracking-widest">Check schedule on Instagram</span>
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  href="tel:+380684649487"
+                  className="group inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/15 hover:border-primary/60 transition-all duration-300"
+                >
+                  <Phone className="h-4 w-4 text-primary group-hover:rotate-12 transition-transform" />
+                  <span className="text-sm font-semibold tracking-wide text-foreground">
+                    +380 68 464 9487
+                  </span>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="bg-primary text-primary-foreground border-primary"
+              >
+                Тренер Надія вам допоможе
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Clock className="h-4 w-4" />
+            <span className="text-sm uppercase tracking-widest">
+              Розклад в Instagram
+            </span>
+          </div>
         </motion.div>
 
         {/* Instagram CTA */}

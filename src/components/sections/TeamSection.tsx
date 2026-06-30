@@ -20,30 +20,30 @@ interface Instructor {
 const instructors: Instructor[] = [
   {
     id: 1,
-    name: "Настя",
-    role: "Hip-Hop & Choreo",
-    specialties: ["Hip-Hop", "Choreography"],
-    bio: "Енергійна та креативна. Навчить тебе не просто танцювати, а жити танцем. Переможниця багатьох батлів.",
+    name: "Анастасія",
+    role: "Choreo",
+    specialties: ["Choreo"],
+    bio: "Енергійна та креативна. Навчить тебе не просто танцювати, а жити танцем. Переможниця багатьох чемпіонатів.",
     image: nastyaImage,
-    instagram: "https://instagram.com",
+    instagram: "https://www.instagram.com/nesxeyy/",
   },
   {
     id: 2,
-    name: "Ніка",
-    role: "Jazz-Funk & Heels",
-    specialties: ["Heels", "Jazz-Funk"],
-    bio: "Грація та сила в кожному русі. Допоможе розкрити твою жіночність та впевненість на підборах.",
-    image: nikaImage,
-    instagram: "https://instagram.com",
+    name: "Надія",
+    role: "Choreo",
+    specialties: ["Choreo"],
+    bio: "Професіоналізм та увага до деталей. Її хореографії завжди наповнені глибоким змістом та емоціями.",
+    image: nadiaImage,
+    instagram: "https://www.instagram.com/nyaa.930/",
   },
   {
     id: 3,
-    name: "Надя",
-    role: "K-Pop & Contemporary",
-    specialties: ["K-Pop", "Contemporary"],
-    bio: "Професіоналізм та увага до деталей. Її хореографії завжди наповнені глибоким змістом та емоціями.",
-    image: nadiaImage,
-    instagram: "https://instagram.com",
+    name: "Вероніка",
+    role: "Jazz-Funk",
+    specialties: ["Jazz-Funk"],
+    bio: "Грація та сила в кожному русі. Допоможе розкрити твою жіночність та впевненість на підборах.",
+    image: nikaImage,
+    instagram: "https://www.instagram.com/_richiekaspbrak_/",
   },
 ];
 
@@ -73,17 +73,12 @@ const cardVariants = {
 
 const getSpecialtyColor = (specialty: string) => {
   switch (specialty) {
-    case "Hip-Hop":
-    case "Breaking":
+    case "Choreo":
+    case "CHOREO":
       return "bg-primary/20 text-primary border-primary/30";
-    case "K-Pop":
-      return "bg-pink-500/20 text-pink-400 border-pink-500/30";
-    case "Heels":
     case "Jazz-Funk":
-      return "bg-purple-500/20 text-purple-400 border-purple-500/30";
-    case "Choreography":
-    case "Contemporary":
-      return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+    case "JAZZ-FUNK":
+      return "bg-pink-500/20 text-pink-400 border-pink-500/30";
     default:
       return "bg-secondary text-foreground border-border";
   }
@@ -91,7 +86,10 @@ const getSpecialtyColor = (specialty: string) => {
 
 export const TeamSection = () => {
   return (
-    <section id="team" className="relative py-24 sm:py-32 bg-background overflow-hidden">
+    <section
+      id="team"
+      className="relative py-24 sm:py-32 bg-background overflow-hidden"
+    >
       {/* Background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
@@ -134,10 +132,14 @@ export const TeamSection = () => {
               Наша команда
             </motion.span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight uppercase text-foreground mb-6">
-              Наші <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/50">Тренери</span>
+              Наші{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/50">
+                Тренери
+              </span>
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-8">
-              Професіонали, які надихають, мотивують та ведуть до успіху кожного учня. Ми - більше ніж просто студія, ми - сім'я, яка живе танцем.
+              Професіонали, які надихають, мотивують та ведуть до успіху кожного
+              учня. Ми - більше ніж просто студія, ми - сім'я, яка живе танцем.
             </p>
             <motion.a
               href="#schedule"
@@ -159,7 +161,11 @@ export const TeamSection = () => {
             <div className="relative w-full max-w-sm lg:max-w-md">
               <motion.div
                 animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
                 className="relative rounded-2xl overflow-hidden border border-border/50 shadow-2xl group z-10"
               >
                 <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
@@ -172,7 +178,12 @@ export const TeamSection = () => {
               {/* Decorative elements */}
               <motion.div
                 animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.2,
+                }}
                 className="absolute -z-10 top-4 -right-4 w-full h-full rounded-2xl border border-primary/20 bg-primary/5"
               />
               <div className="absolute -z-20 -bottom-8 -left-8 w-40 h-40 bg-primary/20 rounded-full blur-3xl opacity-30" />
@@ -204,7 +215,7 @@ export const TeamSection = () => {
                   />
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-                  
+
                   {/* Instagram Button */}
                   {instructor.instagram && (
                     <motion.a
@@ -227,7 +238,7 @@ export const TeamSection = () => {
                     <p className="text-xs uppercase tracking-wider text-primary font-semibold mb-3">
                       {instructor.role}
                     </p>
-                    
+
                     {/* Specialties */}
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       {instructor.specialties.map((specialty) => (
@@ -241,9 +252,7 @@ export const TeamSection = () => {
                     </div>
 
                     {/* Bio - shows on hover */}
-                    <motion.p
-                      className="text-xs text-muted-foreground leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300 line-clamp-3"
-                    >
+                    <motion.p className="text-xs text-muted-foreground leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300 line-clamp-3">
                       {instructor.bio}
                     </motion.p>
                   </div>
