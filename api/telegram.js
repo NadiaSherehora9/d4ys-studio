@@ -1,14 +1,9 @@
-import https from 'https';
-
 export default async function handler(req, res) {
-  // Запобігаємо падінню, якщо req.body порожній
-  const body = req.body || {};
-  const message = body.message;
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  const { message } = req.body || {};
   if (!message) {
     return res.status(400).json({ error: 'Message is required' });
   }
@@ -28,49 +23,30 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Server configuration error. Credentials missing.' });
   }
 
-  // Використовуємо нативний модуль https замісті fetch для 100% сумісності з будь-якою версією Node.js
-  return new Promise((resolve) => {
-    const postData = JSON.stringify({
-      chat_id: chatId,
-      text: message,
-      parse_mode: "HTML",
-    });
-
-    const options = {
-      hostname: 'api.telegram.org',
-      port: 443,
-      path: `/bot${token}/sendMessage`,
-      method: 'POST',
+  try {
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const response = await fetch(url, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData)
-      }
-    };
-
-    const reqTg = https.request(options, (resTg) => {
-      let data = '';
-      resTg.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      resTg.on('end', () => {
-        if (resTg.statusCode >= 200 && resTg.statusCode < 300) {
-          res.status(200).json({ success: true });
-        } else {
-          console.error("Telegram API Response Error:", data);
-          res.status(500).json({ error: 'Telegram API failed', details: data });
-        }
-        resolve();
-      });
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: "HTML",
+      }),
     });
 
-    reqTg.on('error', (e) => {
-      console.error("HTTPS Request Error:", e);
-      res.status(500).json({ error: 'Internal HTTPS Error', details: e.message });
-      resolve();
-    });
+    const responseData = await response.json();
 
-    reqTg.write(postData);
-    reqTg.end();
-  });
+    if (!response.ok) {
+      console.error("Telegram API Error:", responseData);
+      return res.status(500).json({ error: 'Telegram API failed', details: responseData });
+    }
+
+    return res.status(200).json({ success: true, data: responseData });
+  } catch (error) {
+    console.error("Server Error:", error);
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
 }
