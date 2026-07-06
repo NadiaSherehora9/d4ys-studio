@@ -8,22 +8,18 @@ export const sendTelegramMessage = async (message: string) => {
   }
 
   try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    
-    // Використовуємо URLSearchParams та no-cors, щоб браузер не блокував запит через CORS
     const params = new URLSearchParams({
       chat_id: TELEGRAM_CHAT_ID,
       text: message,
       parse_mode: "HTML",
     });
 
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?${params.toString()}`;
+    
+    // GET запит з no-cors гарантовано уникає блокування браузером
     await fetch(url, {
-      method: "POST",
-      mode: "no-cors", // Ігноруємо CORS помилки
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: params,
+      method: "GET",
+      mode: "no-cors",
     });
   } catch (error) {
     console.error("Telegram API Error:", error);
