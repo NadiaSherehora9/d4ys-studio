@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
+import { sendTelegramMessage } from "@/lib/telegram";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -527,6 +528,8 @@ export const ScheduleSection = () => {
       if (error) {
         throw error;
       }
+      
+      await sendTelegramMessage(`<b>📅 Новий запис (Розклад)</b>\n\n<b>👤 Ім'я:</b> ${bookingName.trim()}\n<b>📞 Телефон:</b> ${bookingPhone.trim()}\n<b>✉️ Email:</b> ${bookingEmail.trim() || "-"}\n\n<b>📌 Деталі:</b>\n${details}`);
 
       toast.success(
         bookingMode === "group"

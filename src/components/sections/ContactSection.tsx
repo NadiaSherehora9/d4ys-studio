@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
 import { Send, Check, AlertCircle, Instagram, MapPin, Phone, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { sendTelegramMessage } from "@/lib/telegram";
 
 const contactSchema = z.object({
   name: z
@@ -96,6 +97,8 @@ export const ContactSection: React.FC = () => {
         // TODO: Trigger email notification to gglutt9@gmail.com
         // This would typically be done via Supabase Edge Function or Database Webhook
         console.log(`[Notification] New lead from ${formData.email}. Sending notification to gglutt9@gmail.com`);
+        
+        await sendTelegramMessage(`<b>🔥 Нове повідомлення (Контакти)</b>\n\n<b>👤 Ім'я:</b> ${formData.name}\n<b>📞 Телефон:</b> ${formData.phone}\n<b>✉️ Email:</b> ${formData.email}\n\n<b>💬 Повідомлення:</b>\n${formData.message}`);
         
       } else {
         await new Promise(resolve => setTimeout(resolve, 1500));
