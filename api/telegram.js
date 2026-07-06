@@ -13,8 +13,15 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  const token = process.env.VITE_TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.VITE_TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+  let token = process.env.VITE_TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
+  let chatId = process.env.VITE_TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+
+  if (token) {
+    token = token.trim().replace(/['"<>\s]/g, '');
+  }
+  if (chatId) {
+    chatId = chatId.trim().replace(/['"<>\s]/g, '');
+  }
 
   if (!token || !chatId) {
     console.error("Missing Telegram credentials on server");
