@@ -5,6 +5,10 @@ import { ChevronDown } from "lucide-react";
 interface FAQItem {
   question: string;
   answer: string;
+  action?: {
+    label: string;
+    href: string;
+  };
 }
 
 const faqItems: FAQItem[] = [
@@ -42,7 +46,11 @@ const faqItems: FAQItem[] = [
   {
     question: "Де знаходиться студія?",
     answer:
-      "Студія D4YS розташована в центрі Білої Церкви. Точну адресу та схему проїзду можна отримати після запису на заняття або в нашому Instagram.",
+      "Студія D4YS розташована в центрі Білої Церкви: вул. Героїв Небесної Сотні, 2А, ТРЦ «Вега», 4 поверх. У секції «Локація» є коротке відео з маршрутом до студії.",
+    action: {
+      label: "Показати локацію",
+      href: "#location",
+    },
   },
 ];
 
@@ -154,6 +162,14 @@ export const FAQSection: React.FC = () => {
                         >
                           {item.answer}
                         </motion.p>
+                        {item.action && (
+                          <a
+                            href={item.action.href}
+                            className="mt-4 inline-flex items-center rounded-full border border-primary/40 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary transition hover:bg-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                          >
+                            {item.action.label}
+                          </a>
+                        )}
                       </div>
                     </motion.div>
                   )}

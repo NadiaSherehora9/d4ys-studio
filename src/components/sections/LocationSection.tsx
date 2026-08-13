@@ -1,21 +1,53 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, ExternalLink, MapPin, Navigation, Play } from "lucide-react";
 
 const instagramUrl = "https://www.instagram.com/p/DX9cm4fMmF4/";
 const mapUrl =
-  "https://www.google.com/maps/search/?api=1&query=%D0%A2%D0%A0%D0%A6+%D0%92%D0%B5%D0%B3%D0%B0+%D0%91%D1%96%D0%BB%D0%B0+%D0%A6%D0%B5%D1%80%D0%BA%D0%B2%D0%B0";
+  "https://www.google.com/maps/search/?api=1&query=%D0%B2%D1%83%D0%BB.+%D0%93%D0%B5%D1%80%D0%BE%D1%97%D0%B2+%D0%9D%D0%B5%D0%B1%D0%B5%D1%81%D0%BD%D0%BE%D1%97+%D0%A1%D0%BE%D1%82%D0%BD%D1%96+2%D0%90+%D0%A2%D0%A0%D0%A6+%D0%92%D0%B5%D0%B3%D0%B0+%D0%91%D1%96%D0%BB%D0%B0+%D0%A6%D0%B5%D1%80%D0%BA%D0%B2%D0%B0";
 
 export const LocationSection = () => {
   const [isRevealed, setIsRevealed] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const playVideo = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.playsInline = true;
+    setVideoError(false);
+
+    try {
+      await video.play();
+    } catch {
+      video.load();
+      try {
+        await video.play();
+      } catch {
+        setVideoError(true);
+      }
+    }
+  }, []);
 
   const revealLocation = () => {
     setIsRevealed(true);
-    void videoRef.current?.play().catch(() => undefined);
+    void playVideo();
   };
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isRevealed && videoRef.current?.paused) {
+        void playVideo();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isRevealed, playVideo]);
 
   return (
     <section id="location" className="relative overflow-hidden py-20 sm:py-28 lg:py-36">
@@ -54,7 +86,7 @@ export const LocationSection = () => {
                 <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">
                   Адреса
                 </p>
-                <p className="mt-1 text-sm font-bold uppercase sm:text-base">ТРЦ Вега</p>
+                <p className="mt-1 text-sm font-bold uppercase sm:text-base">Вега · 2А</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5">
                 <Navigation className="mb-4 h-5 w-5 text-primary" aria-hidden="true" />
@@ -89,19 +121,26 @@ export const LocationSection = () => {
             <div className="relative aspect-[9/15] overflow-hidden rounded-[1.75rem] border border-white/15 bg-zinc-950 shadow-2xl sm:rounded-[2.25rem]">
               <video
                 ref={videoRef}
-                src="/studio-location.mp4"
                 className={`h-full w-full object-cover transition-[filter,transform] duration-1000 ease-out ${
                   isRevealed
                     ? "scale-100 brightness-90 blur-0"
                     : "scale-110 brightness-[0.42] blur-xl"
                 }`}
-                autoPlay
                 muted
                 loop
                 playsInline
-                preload="metadata"
+                preload="auto"
+                disablePictureInPicture
+                controlsList="nodownload noplaybackrate noremoteplayback"
+                onCanPlay={() => {
+                  if (isRevealed && videoRef.current?.paused) void playVideo();
+                }}
+                onError={() => setVideoError(true)}
                 aria-hidden="true"
-              />
+              >
+                <source src="/studio-location-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
+                <source src="/studio-location.mp4" type="video/mp4" />
+              </video>
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/35" />
 
               <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-2 text-[9px] font-bold uppercase tracking-[0.22em] text-white/80 backdrop-blur-md sm:left-6 sm:top-6">
@@ -153,6 +192,20 @@ export const LocationSection = () => {
                   </motion.a>
                 )}
               </AnimatePresence>
+
+              {isRevealed && videoError && (
+                <button
+                  type="button"
+                  onClick={() => void playVideo()}
+                  className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/55 px-6 text-center backdrop-blur-sm"
+                >
+                  <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-primary">
+                    <Play className="ml-1 h-5 w-5 fill-white text-white" aria-hidden="true" />
+                  </span>
+                  <span className="text-sm font-black uppercase tracking-[0.16em]">Відтворити маршрут</span>
+                  <span className="mt-2 text-[10px] uppercase tracking-[0.18em] text-white/60">Натисніть ще раз</span>
+                </button>
+              )}
             </div>
 
             <div className="pointer-events-none absolute -right-4 top-1/2 hidden -translate-y-1/2 rotate-90 text-[9px] font-semibold uppercase tracking-[0.32em] text-white/30 sm:block">

@@ -94,9 +94,9 @@ export const ContactSection: React.FC = () => {
           throw error;
         }
 
-        // TODO: Trigger email notification to gglutt9@gmail.com
+        // TODO: Trigger email notification to nadiaserehora@gmail.com
         // This would typically be done via Supabase Edge Function or Database Webhook
-        console.log(`[Notification] New lead from ${formData.email}. Sending notification to gglutt9@gmail.com`);
+        console.log(`[Notification] New lead from ${formData.email}. Sending notification to nadiaserehora@gmail.com`);
         
         await sendTelegramMessage(`<b>🔥 Нове повідомлення (Контакти)</b>\n\n<b>👤 Ім'я:</b> ${formData.name}\n<b>📞 Телефон:</b> ${formData.phone}\n<b>✉️ Email:</b> ${formData.email}\n\n<b>💬 Повідомлення:</b>\n${formData.message}`);
         
@@ -202,7 +202,7 @@ export const ContactSection: React.FC = () => {
               </motion.a>
 
               <motion.a
-                href="mailto:gglutt9@gmail.com"
+                href="mailto:nadiaserehora@gmail.com"
                 whileHover={{ scale: 1.02, x: 5 }}
                 className="flex items-center gap-4 p-4 bg-card/50 border border-border/50 rounded-xl hover:border-primary/30 transition-colors"
               >
@@ -211,35 +211,37 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-bold text-sm">Email</p>
-                  <p className="text-muted-foreground text-sm">gglutt9@gmail.com</p>
+                  <p className="break-all text-sm text-muted-foreground">nadiaserehora@gmail.com</p>
                 </div>
               </motion.a>
 
-              <motion.div
+              <motion.a
+                href="#location"
                 whileHover={{ scale: 1.02, x: 5 }}
-                className="flex items-center gap-4 p-4 bg-card/50 border border-border/50 rounded-xl"
+                className="flex items-center gap-4 p-4 bg-card/50 border border-border/50 rounded-xl hover:border-primary/30 transition-colors"
               >
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="font-bold text-sm">Локація</p>
-                  <p className="text-muted-foreground text-sm">Біла Церква, Україна</p>
+                  <p className="text-muted-foreground text-sm">ТРЦ «Вега», 4 поверх</p>
                 </div>
-              </motion.div>
+              </motion.a>
 
-              <motion.div
+              <motion.a
+                href="tel:+380684649487"
                 whileHover={{ scale: 1.02, x: 5 }}
-                className="flex items-center gap-4 p-4 bg-card/50 border border-border/50 rounded-xl"
+                className="flex items-center gap-4 p-4 bg-card/50 border border-border/50 rounded-xl hover:border-primary/30 transition-colors"
               >
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="font-bold text-sm">Телефон</p>
-                  <p className="text-muted-foreground text-sm">Напишіть в Instagram</p>
+                  <p className="text-muted-foreground text-sm">+380 68 464 9487</p>
                 </div>
-              </motion.div>
+              </motion.a>
             </div>
           </motion.div>
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Menu, Phone, User2, X } from "lucide-react";
+import { ArrowRight, Menu, Phone, User2, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { NavDropdown } from "./NavDropdown";
 import {
@@ -175,23 +175,29 @@ export const Header = ({ navItems, className }: HeaderProps) => {
                   <TooltipTrigger asChild>
                     <motion.a
                       href="tel:+380684649487"
-                      className="group relative flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-xs font-semibold tracking-wide text-foreground transition-all duration-300 hover:border-primary/60 hover:bg-primary/15"
+                      aria-label="Зателефонувати тренерці Надії: +380 68 464 9487"
+                      className="group relative flex min-w-[166px] items-center gap-2.5 overflow-hidden rounded-full border border-primary/35 bg-primary/5 px-4 py-2 text-xs font-semibold tracking-wide text-foreground transition-all duration-300 hover:border-primary hover:bg-primary/15 hover:shadow-[0_0_24px_hsl(var(--primary)/0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.4 }}
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.96 }}
                     >
-                      <Phone className="h-3.5 w-3.5 text-primary transition-transform group-hover:rotate-12" />
-                      <span className="hidden lg:inline">+380 68 464 9487</span>
-                      <span className="lg:hidden">Зв’язок</span>
+                      <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
+                        <span className="absolute inset-0 animate-ping rounded-full bg-primary/25" />
+                        <Phone className="relative h-3.5 w-3.5 text-primary transition-transform group-hover:rotate-12" />
+                      </span>
+                      <span className="whitespace-nowrap text-left uppercase tracking-[0.12em] transition-colors group-hover:text-primary">
+                        Є питання?
+                      </span>
+                      <ArrowRight className="h-3.5 w-3.5 text-primary transition-transform group-hover:translate-x-1" />
                     </motion.a>
                   </TooltipTrigger>
                   <TooltipContent
                     side="bottom"
                     className="bg-primary text-primary-foreground border-primary"
                   >
-                    Тренер Надія вам допоможе
+                    Натисніть — тренерка Надія відповість і допоможе
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -392,7 +398,7 @@ export const Header = ({ navItems, className }: HeaderProps) => {
                 </div>
 
                 <p className="text-center text-xs text-muted-foreground mt-1">
-                  +380 68 464 9487 · Тренер Надія вам допоможе
+                  Тренерка Надія відповість і допоможе обрати напрям
                 </p>
               </motion.div>
             </motion.div>
