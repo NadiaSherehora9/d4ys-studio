@@ -37,7 +37,7 @@ export const LocationSection = () => {
               </span>
             </div>
 
-            <h2 className="font-anton text-[clamp(3.5rem,8vw,7.5rem)] uppercase leading-[0.86] tracking-[-0.015em]">
+            <h2 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.04em] sm:text-6xl lg:text-7xl xl:text-8xl">
               Знайди
               <span className="block text-primary">свій ритм</span>
               у місті

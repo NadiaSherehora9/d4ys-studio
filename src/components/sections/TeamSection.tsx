@@ -56,7 +56,7 @@ export const TeamSection = () => {
             <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.35em] text-primary">
               Наша команда · 02 тренери
             </p>
-            <h2 className="max-w-4xl font-anton text-[2.6rem] uppercase leading-[0.84] tracking-[-0.025em] sm:text-[clamp(3.4rem,9vw,8.5rem)] sm:leading-[0.82]">
+            <h2 className="max-w-4xl text-[2.15rem] font-black uppercase leading-[0.88] tracking-[-0.04em] sm:text-5xl lg:text-7xl xl:text-8xl">
               Рух починається
               <span className="block text-primary">з довіри</span>
             </h2>
