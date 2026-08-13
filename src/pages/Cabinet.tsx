@@ -616,7 +616,7 @@ const Cabinet = () => {
                                     <p className="text-muted-foreground text-sm max-w-xs mx-auto mb-6">
                                         Запишіться на заняття через розклад на головній сторінці
                                     </p>
-                                    <Button variant="secondary" onClick={() => window.location.href = "/#schedule"}>
+                                    <Button variant="secondary" onClick={() => window.location.href = "/#contact"}>
                                         Перейти до розкладу
                                     </Button>
                                 </CardContent>

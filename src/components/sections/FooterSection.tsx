@@ -45,7 +45,7 @@ export const FooterSection = () => {
           </h2>
         </motion.div>
 
-        {/* Contacts: phone + schedule */}
+        {/* Contacts: phone + working hours */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -78,7 +78,7 @@ export const FooterSection = () => {
           <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="h-4 w-4" />
             <span className="text-sm uppercase tracking-widest">
-              Розклад в Instagram
+              Пн–Сб · за попереднім записом
             </span>
           </div>
         </motion.div>

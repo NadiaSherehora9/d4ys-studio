@@ -3,10 +3,9 @@ import { Header } from "@/components/Header";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { PageTransition } from "@/components/PageTransition";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { GallerySection } from "@/components/sections/GallerySection";
 import { DirectionsSection } from "@/components/sections/DirectionsSection";
 import { TeamSection } from "@/components/sections/TeamSection";
-import { ScheduleSection } from "@/components/sections/ScheduleSection";
+import { LocationSection } from "@/components/sections/LocationSection";
 import { PricingSection } from "@/components/sections/PricingSection";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { ContactSection } from "@/components/sections/ContactSection";
@@ -17,7 +16,7 @@ const navItems = [
   { name: "Головна", link: "#home" },
   { name: "Напрямки", link: "#directions" },
   { name: "Команда", link: "#team" },
-  { name: "Розклад", link: "#schedule" },
+  { name: "Локація", link: "#location" },
   { name: "Ціни", link: "#pricing" },
   { name: "Контакти", link: "#contact" },
 ];
@@ -41,7 +40,7 @@ const Index = () => {
             {/* <GallerySection /> */}
             <DirectionsSection />
             <TeamSection />
-            <ScheduleSection />
+            <LocationSection />
             <PricingSection />
             <FAQSection />
             <ContactSection />

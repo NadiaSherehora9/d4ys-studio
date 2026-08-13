@@ -1,5 +1,4 @@
 export const trainers = [
-  { id: "anastasiia", name: "Анастасія" },
   { id: "nadiia", name: "Надія" },
   { id: "veronika", name: "Вероніка" },
 ];

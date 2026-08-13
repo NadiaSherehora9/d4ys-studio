@@ -226,6 +226,9 @@ export const Header = ({ navItems, className }: HeaderProps) => {
 
             {/* Mobile Menu Button */}
             <motion.button
+              type="button"
+              aria-label={mobileMenuOpen ? "Закрити меню" : "Відкрити меню"}
+              aria-expanded={mobileMenuOpen}
               className="md:hidden relative z-10 p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               whileTap={{ scale: 0.9 }}
