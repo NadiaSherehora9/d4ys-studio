@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface FAQItem {
   question: string;
-  answer: string;
+  answer: string | ((trialPrice: number) => string);
   action?: {
     label: string;
     href: string;
@@ -14,8 +15,8 @@ interface FAQItem {
 const faqItems: FAQItem[] = [
   {
     question: "Як записатися на пробне заняття?",
-    answer:
-      "Записатися на пробне заняття в D4YS Studio можна через наш Instagram @d4ys_studio або зателефонувавши за номером +380 68 464 9487. Пробне заняття коштує 150 грн і дозволяє обрати будь-який напрямок — Хорео чи Jazz-Funk.",
+    answer: (trialPrice: number) =>
+      `Записатися на пробне заняття в D4YS Studio можна через наш Instagram @d4ys_studio або зателефонувавши за номером +380 68 464 9487. Пробне заняття коштує ${trialPrice} грн і дозволяє обрати будь-який напрямок — Хорео чи Jazz-Funk.`,
   },
   {
     question: "Чи потрібен попередній досвід для занять?",
@@ -56,6 +57,24 @@ const faqItems: FAQItem[] = [
 
 export const FAQSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [trialPrice, setTrialPrice] = useState(150);
+
+  useEffect(() => {
+    const loadTrialPrice = async () => {
+      if (!supabase) return;
+      const { data } = await supabase
+        .from("pricing_plans")
+        .select("price")
+        .eq("id", "trial")
+        .single();
+      if (data?.price) setTrialPrice(data.price);
+    };
+    void loadTrialPrice();
+  }, []);
+
+  const getAnswer = (answer: string | ((trialPrice: number) => string)): string => {
+    return typeof answer === "function" ? answer(trialPrice) : answer;
+  };
 
   const toggleItem = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -159,7 +178,7 @@ export const FAQSection: React.FC = () => {
                           transition={{ duration: 0.2, delay: 0.1 }}
                           className="text-muted-foreground text-sm leading-relaxed"
                         >
-                          {item.answer}
+                          {getAnswer(item.answer)}
                         </motion.p>
                         {item.action && (
                           <a
