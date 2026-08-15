@@ -56,8 +56,11 @@ export const HeroSection = () => {
           Dance Studio
         </motion.div>
 
+        {/* SEO: hidden h1 for search engines */}
+        <h1 className="sr-only">D4YS Studio — танцювальна студія в Білій Церкві. Дитячі та дорослі танці: Хореографія, Jazz-Funk</h1>
+
         {/* Text Hover Effect */}
-        <div className="w-[90vw] max-w-4xl h-[200px] sm:h-[250px] md:h-[300px]">
+        <div className="w-[90vw] max-w-4xl h-[200px] sm:h-[250px] md:h-[300px]" aria-hidden="true">
           <TextHoverEffect text="D4YS" />
         </div>
 
@@ -68,7 +71,7 @@ export const HeroSection = () => {
           transition={{ duration: 1, delay: 1.5 }}
           className="mt-4 text-sm sm:text-base text-muted-foreground uppercase tracking-[0.3em] font-medium"
         >
-          Біла Церква • Україна
+          Танцювальна студія • Біла Церква
         </motion.p>
 
         {/* CTA Button */}
