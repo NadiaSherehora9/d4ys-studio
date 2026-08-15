@@ -15,4 +15,4 @@ Allow: /
 Disallow: /admin
 Disallow: /cabinet
 
-Sitemap: https://d4ys-studio.com/sitemap.xml
+Sitemap: https://www.d4ys-bc.com/sitemap.xml

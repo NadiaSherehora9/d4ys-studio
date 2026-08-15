@@ -10,10 +10,10 @@ interface SEOProps {
 
 export const SEO = ({
   title = "D4YS Studio — Танцювальна студія в Білій Церкві",
-  description = "Сучасна танцювальна студія в Білій Церкві. Авторська хореографія та Jazz-Funk. Професійні тренери, комфортний зал, дружня атмосфера.",
-  keywords = "танці Біла Церква, танцювальна студія, хореографія, jazz-funk, джазфанк, навчання танцям, D4YS, days studio",
-  image = "/og-image.png",
-  url = "https://d4ys-studio.com/",
+  description = "D4YS Studio — сучасна танцювальна студія в Білій Церкві. Hip-Hop, K-Pop, High Heels, Jazz-Funk. Професійні тренери, комфортний зал, дружня атмосфера. Запишись на пробне заняття!",
+  keywords = "танці Біла Церква, танцювальна студія Біла Церква, хіп-хоп Біла Церква, k-pop танці, high heels Біла Церква, jazz-funk, хореографія Біла Церква, навчання танцям, D4YS Studio, школа танців Біла Церква",
+  image = "https://www.d4ys-bc.com/favicon.png",
+  url = "https://www.d4ys-bc.com/",
 }: SEOProps) => {
   const siteTitle =
     title === "D4YS Studio — Танцювальна студія в Білій Церкві"
@@ -25,6 +25,7 @@ export const SEO = ({
       <title>{siteTitle}</title>
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
+      <link rel="canonical" href={url} />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content="website" />
@@ -32,6 +33,8 @@ export const SEO = ({
       <meta property="og:title" content={siteTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
+      <meta property="og:locale" content="uk_UA" />
+      <meta property="og:site_name" content="D4YS Studio" />
 
       {/* Twitter */}
       <meta property="twitter:card" content="summary_large_image" />
