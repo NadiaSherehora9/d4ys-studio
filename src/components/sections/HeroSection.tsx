@@ -69,9 +69,9 @@ export const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.5 }}
-          className="mt-4 text-sm sm:text-base text-muted-foreground uppercase tracking-[0.3em] font-medium"
+          className="mt-4 px-4 text-center text-[11px] xs:text-xs sm:text-sm text-muted-foreground uppercase tracking-[0.15em] xs:tracking-[0.2em] sm:tracking-[0.3em] font-medium whitespace-nowrap"
         >
-          Танцювальна студія • Біла Церква
+          Танцювальна студія <span className="text-primary">•</span> Біла Церква
         </motion.p>
 
         {/* CTA Button */}
