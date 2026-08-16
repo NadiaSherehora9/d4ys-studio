@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { CalendarSettings, SessionFormState, BookingRow } from "@/lib/types";
 import { trainers, trainingTypes, sessionModes } from "@/lib/constants";
-import { Loader2 } from "lucide-react";
+import { Loader2, CalendarPlus, CalendarDays } from "lucide-react";
 
 const defaultCalendarSettings: CalendarSettings = {
   minDaysAhead: 0,
@@ -251,9 +251,12 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-card/60 border-white/10">
+      <Card className="bg-card/60 backdrop-blur border-white/10">
         <CardHeader>
-          <CardTitle>Налаштування календаря розкладу</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <CalendarDays className="w-5 h-5 text-primary" />
+            Налаштування календаря розкладу
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
@@ -300,17 +303,21 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-card/60 border-white/10">
+      <Card className="bg-card/60 backdrop-blur border-white/10">
         <CardHeader>
-          <CardTitle>Календар тренувань</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <CalendarPlus className="w-5 h-5 text-primary" />
+            Календар тренувань
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               Створюйте заняття, які будуть доступні для запису через календар.
             </p>
             <Button
               size="sm"
+              className="gap-2 w-full sm:w-auto shrink-0"
               onClick={() => {
                 const today = new Date();
                 const dateStr = today.toISOString().slice(0, 10);
@@ -326,44 +333,59 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                 });
               }}
             >
+              <CalendarPlus className="w-4 h-4" />
               Нове заняття
             </Button>
           </div>
           {isLoadingSessions ? (
-            <p className="text-sm text-muted-foreground">
-              Завантаження занять...
-            </p>
+            <div className="flex flex-col items-center gap-3 py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Завантаження занять…</p>
+            </div>
           ) : sessions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground py-8 text-center">
               Поки що немає запланованих занять.
             </p>
           ) : (
-            <div className="space-y-2 max-h-[320px] overflow-y-auto pr-2">
+            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-2">
               {sessions.map((session) => {
                 const trainer = trainers.find(
                   (t) => t.id === session.trainerId,
                 );
                 const booked = bookingsBySessionId[session.id ?? ""] ?? 0;
+                const occupancy = session.capacity > 0 ? Math.min(100, Math.round((booked / session.capacity) * 100)) : 0;
                 return (
                   <div
                     key={session.id}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-white/10 p-3 bg-background/40"
+                    className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border p-3 bg-background/40 ${session.active ? "border-white/10" : "border-white/5 opacity-60"}`}
                   >
-                    <div className="flex flex-col text-sm">
-                      <span className="font-semibold">
-                        {session.date} • {session.time}
+                    <div className="flex flex-col gap-1.5 min-w-0">
+                      <span className="font-semibold flex items-center gap-2 flex-wrap">
+                        {session.date} · {session.time}
+                        {!session.active && (
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground border border-white/10 rounded-full px-2 py-0.5">
+                            неактивне
+                          </span>
+                        )}
                       </span>
-                      <span className="text-xs text-muted-foreground uppercase tracking-widest">
-                        {session.type} • {trainer?.name ?? "Тренер"} •{" "}
-                        {session.durationMinutes} хв •{" "}
+                      <span className="text-xs text-muted-foreground uppercase tracking-widest truncate">
+                        {session.type} · {trainer?.name ?? "Тренер"} ·{" "}
+                        {session.durationMinutes} хв ·{" "}
                         {session.mode === "group" ? "Група" : "Персональне"}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        Бронювань: {booked}/{session.capacity}
-                        {!session.active && " • неактивне"}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-28 rounded-full bg-white/5 overflow-hidden shrink-0">
+                          <div
+                            className={`h-full rounded-full ${occupancy >= 100 ? "bg-red-500" : "bg-primary"}`}
+                            style={{ width: `${occupancy}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {booked}/{session.capacity} місць
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <Switch
                         checked={session.active}
                         onCheckedChange={(value) =>
@@ -373,6 +395,7 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                       <Button
                         variant="outline"
                         size="sm"
+                        className="border-white/10"
                         onClick={() => setEditingSession(session)}
                       >
                         Редагувати
@@ -380,6 +403,7 @@ export function AdminSchedule({ bookings }: AdminScheduleProps) {
                       <Button
                         variant="outline"
                         size="sm"
+                        className="border-white/10 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30"
                         onClick={() => void handleDeleteSession(session.id)}
                       >
                         Видалити

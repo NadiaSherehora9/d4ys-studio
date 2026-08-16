@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { PricingPlan } from "@/lib/types";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Tags } from "lucide-react";
 
 const defaultPricingPlans: PricingPlan[] = [
   {
@@ -209,20 +209,28 @@ export function AdminPricing() {
 
   if (isLoading) {
     return (
-        <div className="flex justify-center p-8">
+        <div className="flex flex-col items-center justify-center gap-3 p-8 rounded-xl border border-white/10 bg-card/60">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Завантаження тарифів…</p>
         </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h2 className="text-2xl font-bold">Тарифи та Абонементи</h2>
-          <p className="text-muted-foreground">Налаштування цін та описів тарифів</p>
+          <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+            <Tags className="w-5 h-5 text-primary" />
+            Тарифи та абонементи
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">Налаштування цін та описів тарифів</p>
         </div>
-        <Button onClick={() => void handlePricingSave()} disabled={isSavingPricing} className="gap-2">
+        <Button
+          onClick={() => void handlePricingSave()}
+          disabled={isSavingPricing}
+          className="gap-2 w-full sm:w-auto shadow-lg shadow-primary/20"
+        >
           {isSavingPricing ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
@@ -232,13 +240,14 @@ export function AdminPricing() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {pricingPlans.map((plan) => (
-          <Card key={plan.id} className="relative overflow-hidden border-white/5 bg-white/5">
+          <Card key={plan.id} className={`relative overflow-hidden border-white/10 bg-card/60 backdrop-blur ${plan.active ? "" : "opacity-60"}`}>
+            {plan.active && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />}
             <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start gap-3">
                 <div>
-                  <CardTitle className="text-xl font-bold tracking-tight">{plan.name}</CardTitle>
+                  <CardTitle className="text-xl font-bold tracking-tight uppercase">{plan.name}</CardTitle>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">ID: {plan.id}</p>
                 </div>
                 <Switch
@@ -255,9 +264,9 @@ export function AdminPricing() {
                     <Input
                       value={plan.price}
                       onChange={(e) => handleChangePricingPrice(plan.id, e.target.value)}
-                      className="font-mono text-lg"
+                      className="font-mono text-lg border-white/10"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">
                       {plan.period}
                     </span>
                   </div>
@@ -273,6 +282,7 @@ export function AdminPricing() {
                 <Input
                   value={plan.description}
                   onChange={(e) => handleChangePricingDescription(plan.id, e.target.value)}
+                  className="border-white/10"
                 />
               </div>
 
@@ -282,7 +292,7 @@ export function AdminPricing() {
                   value={plan.features.join("\n")}
                   onChange={(e) => handleChangePricingFeatures(plan.id, e.target.value)}
                   rows={5}
-                  className="font-mono text-sm leading-relaxed"
+                  className="font-mono text-sm leading-relaxed border-white/10"
                 />
               </div>
             </CardContent>
